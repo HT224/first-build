@@ -1,0 +1,9 @@
+{
+  "title": "Internal product pitch",
+  "pages": [
+    { "slug": "overview", "label": "Overview" },
+    { "slug": "how-it-works", "label": "How it works" },
+    { "slug": "rollout", "label": "Rollout" },
+    { "slug": "faq", "label": "FAQ" }
+  ]
+}
