@@ -12,14 +12,29 @@
 - [x] **T8 (P1)** — Build `templates/prototype/` — static multi-page clickable HTML mockup, with `pages.json`, `copy/*.md`, and `.gitignore`
 - [x] **T9 (P1)** — Write one-word-answer follow-up logic into `SKILL.md` (one follow-up max, then accept)
 - [x] **T10 (P2)** — Add explicit Pages-toggle step-by-step instructions to `SKILL.md` (the 7-step bullet list from the design doc's Failure Modes section). Slot also used to add the six common gotcha-decode rules for things PMs say off-script at this step.
-- [ ] **T11 (P2)** — Dogfood: builder runs `/first-build` end-to-end for each of the 3 templates Sunday morning, times it, fixes the slowest 1-2 issues
-- [ ] **T12 (P2)** — Launch post: Twitter/LinkedIn/PM communities, link to the GitHub repo
+- [ ] **T11 (P2)** — ~~Dogfood: builder runs `/first-build` end-to-end for each of the 3 templates Sunday morning, times it, fixes the slowest 1-2 issues~~ **RESCHEDULED to after V1.5 (T28).** Sunday launch slips ~1-2 weeks per the V1.5 design (see `docs/design-v1.5.md`).
+- [ ] **T12 (P2)** — ~~Launch post: Twitter/LinkedIn/PM communities, link to the GitHub repo~~ **RESCHEDULED to after V1.5 (T29).** Same reason. Launch announcement will mention both paths.
 
 ## V1 build-time deferrals (surfaced during T1–T10)
 
 - [x] **T1a** — `docs/design.md` § Min 28–30 still has stale "I'm polling the URL — when it returns 200, I'll print it here" text. The locked decision is manual paste-back; SKILL.md and recap.md.tmpl already reflect that. Edit design.md to match so a fresh-session re-read doesn't reintroduce the curl-poll behavior. **Fixed in commit; Min 25–28 also reworked to point at the 7-step bullet list and to bump "1–2 min" → "1–5 min."**
 - [x] **T1b** — `recap.md.tmpl` defines `<<config-swaps>>` and `<<codegen-notes>>` placeholders that aren't named in `SKILL.md`'s Min 27–30 step. **Fixed:** inlined full placeholder schema in SKILL.md as a reference table so the agent doesn't have to read both files to render correctly.
 - [x] **T1c** — `templates/dashboard/examples/` ships to the PM's deployed site (no harm — inert JSON, ~2KB) but the recap doesn't tell them what those folders are. **Fixed:** added a new `<<template-note>>` placeholder to recap.md.tmpl (rendered as a "First small change to try" callout right after the spec echo) with a per-template hint — for dashboard it points at `examples/`; for internal-tool it suggests adding a field; for prototype it suggests adding a page.
+
+## V1.5 — two-path /first-build (Path A: problem-shaped, Path B: person-shaped)
+
+Designed via /office-hours on 2026-05-19 after dogfood r2 surfaced: PMs without a specific idea freeze at Q1 of V1's 7-Q problem interview. Full design doc at `docs/design-v1.5.md` (pointer at `~/.gstack/projects/PM_dev_tool/himanshutandon-main-design-20260519-162428.md`).
+
+**Approach: A (two distinct paths with explicit gate at Min 1.5).** Approaches B (minimal) and C (adaptive single interview) considered and rejected. Effort estimate: ~6-10 CC hours / 1-2 weeks part-time.
+
+- [ ] **T22 (P1)** — Write `.claude/skills/first-build/person-picker.md` (parallel to `template-picker.md`). Takes 5 person-shaped answers, emits `template / build_name / pitch / demo_url`. Heuristics: annoyance describes recurring workflow → internal-tool; describes metric/report → dashboard; weekend project sounds like pitch/demo → prototype. Include 3-4 worked examples.
+- [ ] **T23 (P1)** — Restructure `SKILL.md`: new Min 1–1.5 path gate section with verbatim utterance, new Min 2–7 Path B walkthrough (5 get-to-know-you Qs with examples + multi-choice fallbacks, mirroring Path A's structure), new Min 7–8 template-inference + live-demo-confirmation section, override loop subsection (1 retry max, then menu/Path A fallback), 2-Q micro-interview at Min 8–10. Path A walkthrough renamed but otherwise unchanged.
+- [ ] **T24 (P1)** — Deploy 3 live demos to `HT224.github.io/first-build/demos/<archetype>/`. Each demo is one template with default content (no customization) — represents the "unflavored archetype." Confirm GitHub Pages serves subdirectories correctly. May need a small dispatcher index.html at `/demos/`.
+- [ ] **T25 (P1)** — Update `recap.md.tmpl`: add `<<path>>` placeholder, add Path B "Here's how I read you" section that quotes get-to-know-you answers back ("you said you geek out about rock climbing — that's where the accent color came from"). Handle both spec.md schemas (problem-shaped vs person-shaped).
+- [ ] **T26 (P2)** — Update `README.md` to mention both paths and the gate. Frame Path B as "different way in for the curious," not "shortcut for the indecisive" (per /office-hours framing insight).
+- [ ] **T27 (P2)** — Update `docs/design.md` to cross-reference `docs/design-v1.5.md` so a fresh-session re-read sees both V1 (load-bearing decisions, locked) and V1.5 (additive).
+- [ ] **T28 (P1)** — Dogfood r3: builder runs each path end-to-end at least once. Time both. Watch for: does the gate question feel like a wrong-foot? Does Claude pick the right template 4/5 times? Does the live demo confirmation beat actually convert? Fix top 2 frictions.
+- [ ] **T29 (P2)** — Launch post (originally T12), updated to mention both paths. Push only after T28 succeeds and Path B's friend-text rate is at least 50% of Path A's in dogfood r3 — otherwise cut Path B and ship V1 as-is.
 
 ## QA verdict — templates pre-dogfood r2 (2026-05-19)
 
