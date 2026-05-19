@@ -17,7 +17,7 @@
 
 ## V1 build-time deferrals (surfaced during T1–T10)
 
-- [ ] **T1a** — `docs/design.md` § Min 28–30 still has stale "I'm polling the URL — when it returns 200, I'll print it here" text. The locked decision is manual paste-back; SKILL.md and recap.md.tmpl already reflect that. Edit design.md to match so a fresh-session re-read doesn't reintroduce the curl-poll behavior.
+- [x] **T1a** — `docs/design.md` § Min 28–30 still has stale "I'm polling the URL — when it returns 200, I'll print it here" text. The locked decision is manual paste-back; SKILL.md and recap.md.tmpl already reflect that. Edit design.md to match so a fresh-session re-read doesn't reintroduce the curl-poll behavior. **Fixed in commit; Min 25–28 also reworked to point at the 7-step bullet list and to bump "1–2 min" → "1–5 min."**
 - [ ] **T1b** — `recap.md.tmpl` defines `<<config-swaps>>` and `<<codegen-notes>>` placeholders that aren't named in `SKILL.md`'s Min 27–30 step. Either: (a) inline the placeholder schema in SKILL.md, or (b) leave the agent to read the template before rendering. Pick once after T11 dogfood reveals whether the agent reliably opens the template.
 - [ ] **T1c** — `templates/dashboard/examples/` ships to the PM's deployed site (no harm — inert JSON, ~2KB) but the recap doesn't tell them what those folders are. Mention in recap.md.tmpl's "what to try next" or add a one-line README pointer in each template.
 
