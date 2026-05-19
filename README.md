@@ -161,7 +161,7 @@ The current shipping version covers three templates (CRUD tool, dashboard, click
 
 On the table for what comes next, depending on what real PMs hit when they run this:
 
-- A `/next-build` or `/level-up` skill that takes the PM beyond first-build's 30-minute ship moment into a real working relationship with Claude Code — proper `CLAUDE.md` authoring, test setup, `/qa`, when to run `/office-hours` or `/plan-eng-review`, and the broader Claude Code surface.
+- A `/next-build` or `/level-up` skill that takes the PM beyond first-build's 30-minute ship moment into a real working relationship with Claude Code — building something more functional and robust, authoring a proper project `CLAUDE.md`, adding tests and asking Claude to write them, learning to QA your own work, customizing Claude Code via `settings.json`, writing your own skills, and the broader Claude Code surface. Strictly vanilla Claude Code — no third-party skill dependencies. Tiered by user level of need.
 - Survey and automation templates.
 - A classifier eval suite once we have ~10 real specs to train against.
 

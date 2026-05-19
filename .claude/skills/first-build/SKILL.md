@@ -532,6 +532,6 @@ Say: *"Still propagating — first deploys on a new account sometimes take longe
 - **No fourth template, no "no template fits" branch.** Both classifiers (`template-picker.md` and `person-picker.md`) always force-fit. Path A allows verbal override; Path B uses `AskUserQuestion`'s "Other" with a two-strike cap.
 - **No auto-tweet, no split-screen, no hosted live agent.** Those are 10x V2/V3 ambition; V1.5 ships this fork.
 - **No background URL polling.** Manual paste-back is the design — teaches deploy latency, keeps token budget honest, avoids brittle long-running processes.
-- **No path B intent detection** (i.e., automatically routing "Other" free-form to Path A based on content). Rejected in `/plan-eng-review` D3 because intent detection is itself an LLM call subject to the same variance we're managing in Premise #9. The two-strike soft cap is cleaner.
-- **No live demo URLs / inline screenshots for Path B's picker.** Rejected during `/office-hours` (D5/D6) — the 3 text options carry the trust beat via well-tailored prose alone. Zero new operational surface.
-- **No pre-baked sample gallery for Path B.** Rejected three times across `/office-hours` (D2, D5) and `/plan-eng-review` (D1). Runtime LLM generation is the design.
+- **No path B intent detection** (i.e., automatically routing "Other" free-form to Path A based on content). Rejected during engineering review because intent detection is itself an LLM call subject to the same variance we're managing in Premise #9. The two-strike soft cap is cleaner.
+- **No live demo URLs / inline screenshots for Path B's picker.** Rejected during design — the 3 text options carry the trust beat via well-tailored prose alone. Zero new operational surface.
+- **No pre-baked sample gallery for Path B.** Rejected three times across the design phase. Runtime LLM generation is the design.
