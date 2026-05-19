@@ -1,6 +1,6 @@
 ---
 name: first-build
-description: Walk a non-technical PM from idea to a live https://<user>.github.io/<repo>/ URL in ~30 minutes. Open with a Claude Code onboarding, gate on GitHub, then conduct a dialogic 7-question interview, force-fit the answers into one of three static-HTML templates (internal-tool / dashboard / prototype), push to GitHub, and hand off a recap inline + on disk so the PM's next build doesn't need rails. Use when the user invokes /first-build, says "help me build my first thing in Claude Code," or describes a PM idea and wants to ship something today.
+description: Walk a non-technical PM from idea to a live https://<user>.github.io/<repo>/ URL in ~30 minutes. Open with a Claude Code onboarding, gate on GitHub, then offer a path choice — Path A runs a 7-question problem interview for PMs with a specific idea, Path B runs a 5-question get-to-know-you interview for PMs without one (Claude generates 3 personalized build options to pick from). Either way: force-fit into one of three static-HTML templates (internal-tool / dashboard / prototype), push to GitHub, and hand off a recap inline + on disk so the PM's next build doesn't need rails. Use when the user invokes /first-build, says "help me build my first thing in Claude Code," or describes a PM idea and wants to ship something today.
 ---
 
 # /first-build
@@ -19,14 +19,19 @@ You are running the `/first-build` skill. The person on the other side is most l
 ## The whole flow at a glance
 
 1. **Min 0–1** — onboarding: explain what Claude Code is (vs Desktop / claude.ai) and sketch the next 30 min
-2. **Min 1–2** — GitHub gate (yes/no, signup walkthrough if needed, defer repo create until we have a name)
-3. **Min 2–7** — dialogic interview: 7 locked questions, with examples shown and multi-choice fallback for thin answers
-4. **Min 7–10** — create the repo (now that we have a slug), run the classifier (see `template-picker.md`), show pick + bending, allow override
-5. **Min 10–25** — copy the chosen template into the repo, apply bending (config-swap, not codegen, wherever possible)
-6. **Min 25–27** — `git push`, then walk the PM through the Pages toggle (the 7 bullets below)
-7. **Min 27–30** — print the github.io URL with **two ways** to verify it's live, then deliver the recap **inline in the chat first**, with the file path as backup
+2. **Min 1–1.5** — path gate: ask if the PM has something in mind (→ Path A) or wants Claude to figure it out (→ Path B)
+3. **Min 1.5–2** — GitHub gate (yes/no, signup walkthrough if needed; defer repo create until we have a slug)
+4. **Min 2–7** — interview:
+   - **Path A:** 7-question problem interview (with examples + multi-choice fallback for thin answers)
+   - **Path B:** 5-question get-to-know-you interview (same dialogic style, different focus)
+5. **Min 7–10** — template + bending:
+   - **Path A:** run `template-picker.md`, show pick + bending, allow override; then create the repo
+   - **Path B:** run `person-picker.md` to generate 3 personalized build options; PM picks via text select; then 2-Q micro-interview (build name + footer name); then create the repo
+6. **Min 10–25** — build: copy the chosen template into the repo, apply bending (Path A) or personalization swaps (Path B). Config-swap, not codegen, wherever possible.
+7. **Min 25–27** — `git push`, then walk the PM through the Pages toggle (the 7 bullets below)
+8. **Min 27–30** — print the github.io URL with **two ways** to verify it's live, then deliver the recap **inline in the chat first**, with the file path as backup
 
-Total: ~30 min if the PM already has GitHub + `gh` CLI; 45–60 min if they need to set those up.
+Total: ~30 min if the PM already has GitHub + `gh` CLI (~26 min on Path B since the build loop is faster); 45–60 min if they need to set GitHub up first.
 
 ---
 
@@ -43,11 +48,12 @@ Say verbatim:
 > *Here's what we're about to do together:*
 >
 > *1. (~30 sec) Make sure you have GitHub set up.*
-> *2. (~5 min) I'll ask you 7 short questions about what you want to build. I'll show examples and offer options — don't worry about getting the wording exactly right.*
-> *3. (~3 min) I'll pick one of three templates and tell you how I'll adapt it. You can override the pick.*
-> *4. (~15 min) I'll build it. You'll watch files change in your editor as I go.*
-> *5. (~3 min) We'll push it to GitHub and turn on free hosting (GitHub Pages).*
-> *6. (~3 min) You'll have a live URL. I'll print a recap right here in the chat — what we built, what you just learned about git, and what to try next.*
+> *2. (~30 sec) One quick fork: do you have a specific build in mind, or would you rather I figure it out from a few questions about you?*
+> *3. (~5 min) An interview — 7 questions about your problem if you have one, or 5 about you if I'm picking for you. I'll show examples either way.*
+> *4. (~3 min) I'll pick the template and show you what we're building.*
+> *5. (~15 min) I'll build it. You'll watch files change in your editor as I go.*
+> *6. (~3 min) We'll push it to GitHub and turn on free hosting (GitHub Pages).*
+> *7. (~3 min) You'll have a live URL. I'll print a recap right here in the chat — what we built, what you just learned about git, and what to try next.*
 >
 > *You can interrupt me anytime — say 'wait,' 'stop,' or 'go back' and I'll adjust. Ready?"*
 
@@ -55,9 +61,38 @@ Wait for the PM to acknowledge (yes / ready / go / sure / equivalent). If they s
 
 ---
 
-## Min 1–2 — GitHub gate
+## Min 1–1.5 — Path gate
 
-Get this out of the way **before** the interview, not after. PMs who don't have GitHub need to sign up; making them do that after they've answered 7 questions wastes their momentum.
+This is the V1.5 addition that lets PMs without a specific idea use the skill. Ask the fork question verbatim:
+
+> *"One quick fork before we start: do you have something specific in mind you want to build today, or would you rather I figure out what to build based on a few questions about you?*
+>
+> *Option 1: I have an idea. (I'll ask you 7 questions about your problem.)*
+> *Option 2: Surprise me. (I'll ask 5 questions about you and pitch 3 options.)"*
+
+Use `AskUserQuestion` to render the choice — two options, no "Other." The PM picks one.
+
+### Accept variations
+
+Don't be literal. *"I have one,"* *"the first one,"* *"problem,"* → Path A. *"surprise me,"* *"option 2,"* *"the second one,"* *"figure it out,"* *"idk what I want to build,"* → Path B. If the PM types something genuinely ambiguous (e.g., *"hmm"*), re-ask with a tighter framing: *"Quick yes/no — do you have something specific in mind?"*
+
+### Set the right expectation
+
+After Path A is picked, say:
+
+> *"Got it — problem-shaped interview coming up. 7 questions, ~5 minutes."*
+
+After Path B is picked, say:
+
+> *"Got it — let me get to know you for a minute, then I'll pitch three options. ~5 minutes total."*
+
+Either way, proceed to the GitHub gate.
+
+---
+
+## Min 1.5–2 — GitHub gate
+
+Get this out of the way **before** the interview, not after. PMs who don't have GitHub need to sign up; making them do that after they've answered 5–7 questions wastes their momentum. Same gate, both paths.
 
 ### Step 1 — binary yes/no
 
@@ -90,7 +125,7 @@ Run `gh auth status`.
 - **Authed →** Tell the PM: *"You've got the `gh` CLI installed and authed — that means I can create your repo in one command later. Good to go."*
 - **Not installed / not authed →** Say verbatim: *"No `gh` CLI here — that's fine, we'll use the GitHub web UI when it's time to create your repo. Adds about 2 minutes. We'll handle it right after the interview."*
 
-**Do not create the repo yet.** Wait until after the interview when you have a kebab-case slug derived from the spec.
+**Do not create the repo yet.** Wait until after the interview when you have a kebab-case slug derived from the spec or the picked option.
 
 ### Org-owned Pages disabled
 
@@ -98,25 +133,31 @@ Only detectable later (Pages 404 after 5+ min). If you hit this at Min 27+, say:
 
 ---
 
-## Min 2–7 — The interview (dialogic, not a survey)
+## Min 2–7 — The interview
 
-You're asking 7 locked questions that map 1:1 to fields in `spec.md`. The questions are locked, but the *style* of asking is not. Make it feel like a conversation, not a form.
+The interview style is the same in both paths: dialogic, react-after-each-answer, examples shown with each question, multi-choice fallback for thin answers. Only the *questions* differ.
 
-### Three rules that apply to every question
+### Three rules that apply to every question (both paths)
 
 1. **React in one short sentence after each answer.** ≤12 words. Name the shape — don't summarize the whole answer back. Then move on. Examples:
-   - *"Got it — sounds like a status-tracking problem."*
-   - *"OK, classic dashboard shape."*
-   - *"A pitch, not a tool — good to know."*
-   - *"That's a sharp Monday-morning frustration."*
+   - *"Got it — sounds like a status-tracking problem."* (Path A)
+   - *"OK, classic dashboard shape."* (Path A)
+   - *"A growth PM in Linear and Sheets — got it."* (Path B)
+   - *"That's a sharp Monday-morning frustration."* (either)
 
    Don't over-praise ("great answer!") — it gets corporate fast. Don't add a follow-up sentence; just react and continue.
 
-2. **Read the inline example with the question.** Each question below has an italicized example. Read it as part of the question, not a separate beat. PMs anchor on specificity faster when they see one concrete example.
+2. **Read the inline example with the question.** Each question has an italicized example. Read it as part of the question, not a separate beat.
 
-3. **If the answer is thin (≤~5 words) or hedged ("idk," "not sure," "anything," "whatever"), offer the multi-choice fallback once.** Then accept whatever they say — even if it's still thin. The classifier force-fits; you don't need a perfect spec. Do not ask a third time on the same question. (More than one follow-up turns the interview into an interrogation and burns the 30-min budget.)
+3. **If the answer is thin (≤~5 words) or hedged ("idk," "not sure," "anything," "whatever"), offer the multi-choice fallback once.** Then accept whatever they say. The classifier/option generator force-fits; you don't need a perfect spec. Do not ask a third time on the same question.
 
 Write each answer into `spec.md` in the project root as you go (create the file on Q1). Use the longer/more-specific of the two answers if you ran the fallback. Do not paraphrase — capture the PM's actual words.
+
+---
+
+## Min 2–7 (Path A) — The problem interview
+
+For PMs who picked "I have an idea" at the path gate. 7 locked questions mapping 1:1 to fields in `spec.md`.
 
 ### Q1 — `problem`
 
@@ -160,10 +201,12 @@ Write each answer into `spec.md` in the project root as you go (create the file 
 
 **If thin/hedged:** *"Name any app, tool, or website you actually like. Spotify, Notion, Google Maps, Stripe Dashboard — anything. We'll borrow the feeling, not the literal design."*
 
-### `spec.md` format
+### `spec.md` format (Path A)
 
 ```markdown
 # spec.md
+
+**Path:** problem-shaped
 
 **Problem:** <answer to Q1>
 **Persona:** <answer to Q2>
@@ -178,26 +221,88 @@ Write each answer into `spec.md` in the project root as you go (create the file 
 **Bending:** <1–3 sentence prose describing the adaptation>
 ```
 
-`spec.md` is `.gitignored` by every template — it stays local. Do not push it. The recap explains how to opt-in to publishing.
+`spec.md` is `.gitignored` by every template — it stays local. Do not push it.
 
-### After Q7 — create the repo
+---
 
-Now derive a short kebab-case slug from the spec (e.g., `monday-standup-tracker`, `activation-dashboard`, `auth-flow-pitch`) and run repo creation:
+## Min 2–7 (Path B) — The get-to-know-you interview
+
+For PMs who picked "Surprise me" at the path gate. 5 questions about who the PM is, not what they want to build. Same dialogic style as Path A.
+
+### Q1 — `role`
+
+**Ask:** *"What's your role and team? For example: 'PM on the growth pod' beats 'product manager.' If you wear five hats, pick the one you wore most this week."*
+
+**If thin/hedged:** *"Just the simplest one-liner. 'PM at a fintech startup' is enough. We're not writing your LinkedIn."*
+
+### Q2 — `tools`
+
+**Ask:** *"What tools do you live in during the workday? Just name your top three or four. For example: 'Linear, Notion, Sheets, Slack.'"*
+
+**If thin/hedged:** *"Where do you spend the most browser tabs? Slack and Google Docs count. Even one tool is fine — we're just looking for the vibe."*
+
+### Q3 — `annoyance` *(the highest-signal question — anchor for the template pick)*
+
+**Ask:** *"What's the most annoying part of your week — the thing that keeps coming back? For example: 'I forget what my team committed to between Monday and Friday.'"*
+
+**If thin/hedged:** *"Doesn't have to be a big deal. Common shapes: (a) something repetitive you keep redoing, (b) a number people keep asking you for, (c) a decision you keep re-aligning people on. Which is closest?"*
+
+### Q4 — `weekend_project`
+
+**Ask:** *"If you had a free weekend with nothing on your plate, what would you build for fun? Even a half-formed idea works. For example: 'A thing that auto-summarizes my customer calls.'"*
+
+**If thin/hedged:** *"Doesn't have to be coding — could be a notion template, a Sheets thing, a side hustle. Any half-baked idea is fine. If truly nothing comes to mind, say 'idk' and we'll roll with it."*
+
+### Q5 — `hobby`
+
+**Ask:** *"Outside work, what do you geek out about? For example: 'Rock climbing,' 'learning Japanese,' 'video games,' 'baking sourdough.'"*
+
+**If thin/hedged:** *"Anything that takes up your free time. Doesn't have to sound impressive. 'Watching TV' is fine."*
+
+### `spec.md` format (Path B)
+
+```markdown
+# spec.md
+
+**Path:** person-shaped
+
+**Role:** <answer to Q1>
+**Tools:** <answer to Q2>
+**Annoyance:** <answer to Q3>
+**Weekend project:** <answer to Q4>
+**Hobby:** <answer to Q5>
+
+<!-- Three fields below are appended after the 3-option pick + micro-interview (Min 7–10) -->
+**Picked build name:** <from the 3-option text-select pick>
+**Picked template:** <internal-tool | dashboard | prototype>
+**Picked because:** <the one-line "because:" from the picked option>
+**Footer name:** <from the 2-Q micro-interview; "" if PM skipped>
+```
+
+`spec.md` is `.gitignored` — same as Path A.
+
+---
+
+## Min 7–10 — Template + bending (the paths diverge here)
+
+After the interview, derive a short kebab-case slug from `spec.md` (e.g., `monday-commitments-tracker`, `activation-dashboard`, `auth-flow-pitch`).
+
+For repo creation:
 
 - **`gh` was authed →** `gh repo create <slug> --public --clone`. If naming conflict, suggest `<slug>-v2`; accept whatever the PM picks.
 - **No `gh` →** Say: *"Time to create the repo. Open github.com/new, name it `<slug>`, set it Public, click Create repository. Then paste the URL back here."* When pasted, `git clone <url>` and `cd` into it.
 
----
+Then run the path-specific branch below.
 
-## Min 7–10 — Template classification + force-fit
+### Path A (Min 7–10) — Template classification + force-fit
 
-Load `template-picker.md` (in this skill directory) and run the classifier prompt against the completed `spec.md`. The classifier always returns exactly one of: `internal-tool`, `dashboard`, `prototype`, plus 1–3 sentences of bending instructions.
+Load `template-picker.md` and run the classifier prompt against the completed `spec.md`. The classifier always returns exactly one of: `internal-tool`, `dashboard`, `prototype`, plus 1–3 sentences of bending instructions.
 
 Show the PM verbatim:
 
 > *"Closest fit = <template>, because <one-sentence reason grounded in their spec>. Here's how I'll bend it: <1–3 sentences>. Say 'go' to proceed, or 'override' if you want a different template."*
 
-### If the PM overrides
+#### If the PM overrides
 
 Ask: *"Which one — internal-tool, dashboard, or prototype?"* Then re-run the classifier with the PM's chosen template fixed, regenerating only the bending. Then say verbatim:
 
@@ -205,17 +310,79 @@ Ask: *"Which one — internal-tool, dashboard, or prototype?"* Then re-run the c
 
 Append `template:` and `bending:` to `spec.md`. Do not proceed until the PM says "go" (or yes / confirmed / equivalent).
 
+### Path B (Min 7–8) — The 3-option text-select picker
+
+Load `person-picker.md` and run the option generator against the 5 person-shaped answers. The generator returns exactly 3 options, each with `build_name / template / description / because`.
+
+Then say verbatim before opening the picker:
+
+> *"Based on what you told me, here are three things I think could land. Each is genuinely different — pick the one that resonates, or say something else if none of them click."*
+
+Then open `AskUserQuestion` with the 3 options. Each option's label is the `build_name` (e.g., *"Monday commitments tracker"*) and the description follows this exact shape:
+
+```
+<one-sentence description from the option>
+Why this fits you: <the 'because:' line, in italics — quotes a specific phrase from your answers>
+```
+
+`AskUserQuestion`'s built-in "Other" auto-option handles the override case (see below).
+
+#### If the PM picks one of the 3 options
+
+Append `picked_build_name:`, `picked_template:`, and `picked_because:` to `spec.md`. Proceed to the 2-Q micro-interview.
+
+#### If the PM picks "Other" (first time)
+
+Take the PM's free-form answer as additional context. Re-run `person-picker.md`'s "Other regeneration prompt" with the free-form text weighted as the highest signal. Generate 3 fresh options — the first one should be the closest match to the free-form text, the other two should explore alternatives in different archetypes.
+
+Then say verbatim:
+
+> *"Got it — here are three more, shaped by what you just said:"*
+
+Re-open `AskUserQuestion` with the new 3 options.
+
+#### If the PM picks "Other" a second time (two-strike soft cap)
+
+Do NOT regenerate again. Say verbatim:
+
+> *"Two strikes — let me switch tack. Want to try the problem-shaped interview instead? I'll ask you 7 questions about what you want to build, and we'll go from there."*
+
+Use `AskUserQuestion` with two options: *"Yes, switch to the problem interview"* and *"No, let me give you one more try with different words."* If they pick the first, jump back to Min 2–7 Path A with the existing answers used as context (don't make them re-introduce themselves). If they pick the second, regenerate one more time and accept whatever they pick from that set.
+
+### Path B (Min 8–10) — The 2-Q micro-interview
+
+Once the PM picks an option, say verbatim:
+
+> *"Two quick questions to make this yours:*
+> *1. What should we call your <picked_build_name>? Keep the default if you like it.*
+> *2. Whose name should go in the footer? Could be you, your team, or skip it entirely."*
+
+Ask one at a time via `AskUserQuestion`, accept the defaults if the PM passes ("keep it" → use the picked_build_name; "skip" → empty footer name). Append both answers to `spec.md` as `picked_build_name` (overwriting if the PM renamed) and `footer_name`.
+
+Then say verbatim:
+
+> *"Locked in: a <picked_template> called **<picked_build_name>**, with **<footer_name or "no footer name">** in the footer. Building it now."*
+
+Proceed to the build loop.
+
 ---
 
 ## Min 10–25 — Build loop
 
 1. Copy the chosen template directory from `<skill>/templates/<template>/` into the repo root. Preserve the template's `.gitignore` (which lists `spec.md` and `recap.md`).
-2. Apply the bending. **Config-swap first, codegen only when blocked.** Each template's bending surfaces:
-   - **internal-tool** — edit `fields.json` (field name, label, type), `copy.json` (title, button labels), `theme.css` (accent color variable). Codegen only for non-standard field types.
-   - **dashboard** — pick one of the three pre-baked shapes in `data.json` (time-series, categorical-bar, two-column-table), edit `chart-config.json` (chart type, axis labels, title), edit `narrative.md` (the "what this shows" copy). Codegen only for chart types outside Chart.js defaults.
-   - **prototype** — edit `pages.json` (page count, nav structure), edit each `copy/<page>.md`. Codegen only for non-standard interactions (modal, drag-and-drop).
+2. Apply the build customization. **Config-swap first, codegen only when blocked.**
+   - **Path A bending** (from `template-picker.md`) — see V1 spec:
+     - **internal-tool:** edit `fields.json`, `copy.json`, `theme.css`
+     - **dashboard:** pick a shape from `examples/`, edit `data.json`, `chart-config.json`, `narrative.md`
+     - **prototype:** edit `pages.json`, edit each `copy/<page>.md`
+   - **Path B personalization swaps** (from the 2-Q micro-interview):
+     - **internal-tool:** edit `copy.json` so `title` = `picked_build_name`; edit `index.html` footer line to include `footer_name` if non-empty
+     - **dashboard:** edit `chart-config.json` so `title` = `picked_build_name`; edit `index.html` footer
+     - **prototype:** edit `pages.json` so `title` = `picked_build_name`; edit `index.html` footer
 3. Ask at most ~2 clarifying questions inline, only when genuinely blocked. The PM watches files change in their editor — that's part of the magic.
 4. When the build is good enough to ship, move on. Do not polish past the time-box.
+
+Path B's build loop is typically faster than Path A's (~12 min vs ~15 min) because the personalization is config-swap only — no per-spec bending decisions.
 
 ---
 
@@ -254,11 +421,11 @@ After listing the 7 steps, say: *"Tell me when you see the yellow notice."* Wait
 PMs lose the most time on this step. When the PM says something off-script, decode it:
 
 - *"There's no Pages option in the sidebar."* → They're in the wrong repo, or the page didn't finish loading. Have them open the repo URL fresh and scroll the sidebar — "Pages" is near the bottom, under the "Code and automation" group.
-- *"I see GitHub Actions as the Source option."* → That's the wrong choice. Switch back to **Deploy from a branch**. Actions-based Pages requires a workflow file the template doesn't ship.
+- *"I see GitHub Actions as the Source option."* → That's the wrong choice. Switch back to **Deploy from a branch**.
 - *"My only branch option is something other than `main`."* → They cloned but never pushed, so the remote has no branches yet. Go back, run `git push -u origin main`, then refresh the Pages page.
 - *"I clicked Save but I don't see the yellow notice."* → Have them hard-refresh (Cmd/Ctrl + Shift + R). The notice appears under the Source dropdowns.
 - *"There's a green checkmark, not a yellow notice."* → Even better — it means Pages has already deployed. Skip ahead to the URL handoff.
-- *"It says my visibility needs to be public."* → They created a private repo on a Free plan (Free doesn't allow Pages on private repos). Have them go to Settings → General → Danger Zone → Change visibility → Public.
+- *"It says my visibility needs to be public."* → They created a private repo on a Free plan. Have them go to Settings → General → Danger Zone → Change visibility → Public.
 
 Do not re-read the 7 steps when one of these happens. Diagnose the specific gotcha and give the one-line fix.
 
@@ -285,18 +452,35 @@ While the PM waits, render `recap.md.tmpl` (substituting the placeholders below)
 
 The template file's HTML comment is authoritative, but for quick reference:
 
+#### Shared (both paths)
+
 | Placeholder | Source |
 |---|---|
 | `<<live-url>>` | `https://<user>.github.io/<repo>/` |
 | `<<repo-url>>` | `https://github.com/<user>/<repo>` |
 | `<<template>>` | `internal-tool` / `dashboard` / `prototype` |
-| `<<bending>>` | the 1–3 sentence bending text the classifier produced |
-| `<<problem>>` … `<<taste>>` | the seven `spec.md` answers verbatim |
-| `<<config-swaps>>` | a bulleted list of the swaps you actually made (e.g. `- fields.json: {engineer, commitment, status}`); one swap per line, `-` bullet, two-space indent |
+| `<<path>>` | `problem-shaped` (Path A) or `person-shaped` (Path B) |
+| `<<config-swaps>>` | a bulleted list of the swaps you actually made; one swap per line, `-` bullet, two-space indent |
 | `<<codegen-notes>>` | if any codegen was needed beyond config-swap, one sentence; otherwise the literal string `None — everything was config-swap.` |
-| `<<template-note>>` | a one-sentence "first small change" hint specific to the chosen template — see below |
+| `<<template-note>>` | a one-sentence "first small change" hint specific to the chosen template (same for both paths — see below) |
 
-**`<<template-note>>` per template:**
+#### Path A only
+
+| Placeholder | Source |
+|---|---|
+| `<<bending>>` | the 1–3 sentence bending text from `template-picker.md` |
+| `<<problem>>` … `<<taste>>` | the seven Path A `spec.md` answers verbatim |
+
+#### Path B only
+
+| Placeholder | Source |
+|---|---|
+| `<<role>>` `<<tools>>` `<<annoyance>>` `<<weekend_project>>` `<<hobby>>` | the five Path B `spec.md` answers verbatim |
+| `<<picked_build_name>>` | from the 3-option pick + the micro-interview override (if any) |
+| `<<picked_because>>` | the `because:` line from the picked option in person-picker.md output |
+| `<<footer_name>>` | from the 2-Q micro-interview; `""` if PM passed |
+
+**`<<template-note>>` per template** (same for both paths):
 
 - **internal-tool:** *"Try adding a new field — open `fields.json` and add an entry like `{ "name": "due_date", "label": "Due", "type": "date" }`, then commit and push. Your form gets a new field; your existing entries keep their old fields."*
 - **dashboard:** *"Your repo includes `examples/` with two other pre-baked shapes (`categorical-bar`, `two-column-table`). To swap shapes, copy both files from a different `examples/<shape>/` folder into the repo root, edit the values, commit, push."*
@@ -306,7 +490,7 @@ The template file's HTML comment is authoritative, but for quick reference:
 
 When the PM pastes "live" (or "it works" / "loaded" / equivalent), do these two things in order:
 
-1. **Print the rendered recap inline in the chat as one message.** Print the full rendered markdown body — every section, no abbreviation. This is the *primary* delivery. The PM is already looking at the chat; that's where the recap should land. Do not summarize it. Do not tell them "open the file" before they've read it here. (Without the inline print, the recap is invisible to the PM — `recap.md` is `.gitignored` so it's not on GitHub, and PMs often don't know where to look on disk. This step exists specifically to solve that.)
+1. **Print the rendered recap inline in the chat as one message.** Print the full rendered markdown body — every section, no abbreviation. This is the *primary* delivery. The PM is already looking at the chat; that's where the recap should land. Do not summarize it. Do not tell them "open the file" before they've read it here.
 
 2. **After the inline print, tell them where the file lives and how to reopen it.** Say verbatim, substituting the actual repo folder path for `<repo-folder>`:
 
@@ -314,7 +498,7 @@ When the PM pastes "live" (or "it works" / "loaded" / equivalent), do these two 
 
 ### If the URL still 404s after 5+ minutes
 
-Say: *"Still propagating — first deploys on a new account sometimes take longer. Keep refreshing every 30s. If it still 404s after 10 minutes, check Settings → Pages and confirm the yellow notice is gone and a green checkmark is there instead."* If at 10+ min there's no green checkmark, suspect org-disabled Pages (see Min 1–2 step "Org-owned Pages disabled").
+Say: *"Still propagating — first deploys on a new account sometimes take longer. Keep refreshing every 30s. If it still 404s after 10 minutes, check Settings → Pages and confirm the yellow notice is gone and a green checkmark is there instead."* If at 10+ min there's no green checkmark, suspect org-disabled Pages (see Min 1.5–2 step "Org-owned Pages disabled").
 
 ---
 
@@ -322,9 +506,14 @@ Say: *"Still propagating — first deploys on a new account sometimes take longe
 
 | What goes wrong | What you do |
 |---|---|
-| PM has no GitHub account (caught at Min 1–2) | Pause, link `github.com/signup`, wait for username before any interview Qs |
-| No `gh` CLI / not authed | Probe at Min 1–2; defer repo create to Min 7 web-UI fallback |
+| PM has no GitHub account (caught at Min 1.5–2) | Pause, link `github.com/signup`, wait for username before any interview Qs |
+| No `gh` CLI / not authed | Probe at Min 1.5–2; defer repo create to Min 7 web-UI fallback |
 | Repo name conflict at Min 7 | Suggest `<slug>-v2`, accept whatever PM picks |
+| PM answers the path gate ambiguously ("hmm," "uh") | Re-ask with tighter framing: *"Quick yes/no — do you have something specific in mind?"* |
+| Path B: PM picks "Other" once | Use person-picker.md's regenerate prompt; the free-form is highest signal |
+| Path B: PM picks "Other" twice | Two-strike soft cap fires; offer to switch to Path A's problem interview |
+| Path B: Claude generates 3 options of the same archetype | Inference drift — flag in dogfood r3. Per archetype balance rule, ≥2 archetypes is the default |
+| Path B: PM's weekend-project answer is itself a problem statement | Acceptable — let person-picker.md route it into one of the 3 options. Don't auto-switch paths |
 | Pages toggle confusion | Decode the specific gotcha (see list above), don't re-read all 7 steps |
 | Pages 404 after 5+ min | Keep refreshing; after 10+ min suspect org-disabled Pages |
 | PM gets distracted mid-interview | Pick up where you left off, do not restart questions |
@@ -340,6 +529,9 @@ Say: *"Still propagating — first deploys on a new account sometimes take longe
 - **No telemetry, no Google Form, no analytics.** The "texted a friend in 24h?" question lives in `recap.md` as reflective prose only. V1 trusts the PM to self-report when they DM the builder.
 - **No CI/CD, no GitHub Actions, no publish pipeline.** Install is `git clone` + `./setup`. Adding CI now would burn the 30-min budget for no PM-facing gain.
 - **No Claude Artifact / Vercel / surge.sh deploy.** GitHub is the learning surface, not the tax. The PM should leave comfortable with GitHub, not bypassing it.
-- **No fourth template, no "no template fits" branch.** The classifier always picks one and always explains the bend. PM can override verbally before the build starts.
-- **No auto-tweet, no split-screen, no hosted live agent.** Those are 10x V2/V3 ambition; V1 ships this weekend.
+- **No fourth template, no "no template fits" branch.** Both classifiers (`template-picker.md` and `person-picker.md`) always force-fit. Path A allows verbal override; Path B uses `AskUserQuestion`'s "Other" with a two-strike cap.
+- **No auto-tweet, no split-screen, no hosted live agent.** Those are 10x V2/V3 ambition; V1.5 ships this fork.
 - **No background URL polling.** Manual paste-back is the design — teaches deploy latency, keeps token budget honest, avoids brittle long-running processes.
+- **No path B intent detection** (i.e., automatically routing "Other" free-form to Path A based on content). Rejected in `/plan-eng-review` D3 because intent detection is itself an LLM call subject to the same variance we're managing in Premise #9. The two-strike soft cap is cleaner.
+- **No live demo URLs / inline screenshots for Path B's picker.** Rejected during `/office-hours` (D5/D6) — the 3 text options carry the trust beat via well-tailored prose alone. Zero new operational surface.
+- **No pre-baked sample gallery for Path B.** Rejected three times across `/office-hours` (D2, D5) and `/plan-eng-review` (D1). Runtime LLM generation is the design.
