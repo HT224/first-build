@@ -1,0 +1,7 @@
+{
+  "type": "bar",
+  "title": "Q1 signups by channel",
+  "xAxisLabel": "Channel",
+  "yAxisLabel": "Signups",
+  "showTable": true
+}

@@ -1,0 +1,7 @@
+{
+  "type": "line",
+  "title": "Activation rate, last 8 weeks",
+  "xAxisLabel": "Week",
+  "yAxisLabel": "Activation rate (%)",
+  "showTable": true
+}

@@ -1,0 +1,10 @@
+{
+  "shape": "categorical-bar",
+  "labels": ["Mobile", "Web", "Email", "Direct"],
+  "datasets": [
+    {
+      "label": "Signups (Q1)",
+      "data": [240, 180, 95, 60]
+    }
+  ]
+}

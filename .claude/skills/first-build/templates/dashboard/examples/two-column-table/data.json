@@ -1,0 +1,10 @@
+{
+  "shape": "two-column-table",
+  "columns": ["Team", "On-call incidents (Q1)"],
+  "rows": [
+    ["Platform", 4],
+    ["Growth", 2],
+    ["Mobile", 7],
+    ["Data", 1]
+  ]
+}

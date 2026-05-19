@@ -1,0 +1,11 @@
+# /first-build keeps these local on purpose — they may contain employer names,
+# customer names, or internal product strategy. Read recap.md to learn how to
+# opt-in to publishing them.
+spec.md
+recap.md
+
+# Editor cruft
+.DS_Store
+.vscode/
+.idea/
+*.swp

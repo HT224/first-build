@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="theme.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1 id="page-title">…</h1>
+  </header>
+
+  <main>
+    <section class="card" id="narrative-card">
+      <div id="narrative"></div>
+    </section>
+
+    <section class="card" id="chart-card">
+      <div class="chart-wrap"><canvas id="chart"></canvas></div>
+    </section>
+
+    <section class="card" id="table-card">
+      <table id="data-table">
+        <thead></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer>
+    <p>Built in ~30 min with <a href="https://github.com/HT224/first-build">/first-build</a>.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
