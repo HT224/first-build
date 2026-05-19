@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SKILL_DIR="$HOME/.claude/skills/first-build"
+mkdir -p "$(dirname "$SKILL_DIR")"
+ln -sfn "$(pwd)" "$SKILL_DIR"
+chmod +x setup
+echo "first-build linked → $SKILL_DIR"
