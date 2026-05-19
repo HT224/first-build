@@ -1,10 +1,12 @@
 # /first-build
 
-**A Claude Code skill that walks a non-technical PM from "I have an idea" to a live `https://<you>.github.io/<repo>/` URL in about 30 minutes.**
+**A Claude Code skill that walks a non-technical PM from "I have an idea" — or "I don't" — to a live `https://<you>.github.io/<repo>/` URL in about 30 minutes.**
 
-You answer 7 PM-style interview questions. The skill picks one of three static-HTML templates (internal tool, dashboard, or clickable prototype), bends it to your spec, pushes it to GitHub, and walks you through enabling GitHub Pages. You leave with a working URL you can DM to a friend — and a `recap.md` that explains what just happened, so your next build doesn't need the rails.
+Two ways in. If you have something specific in mind, the skill runs a 7-question problem interview and picks the right template + bending for what you described. If you don't yet — a different way in: 5 short questions about you (your role, your tools, what bugs you about your week, what you'd build for fun on a weekend, what you geek out about) and the skill generates 3 personalized build options to pick from. Same three templates either way (internal tool, dashboard, or clickable prototype), same deploy, same `recap.md` that explains what just happened so your next build doesn't need the rails.
 
 The goal isn't to ship the most impressive tool. The goal is the aha moment.
+
+Path B (the "I don't have an idea" path) is for the curious — PMs who want to see what's possible before committing to a specific build. It's not a shortcut for the indecisive.
 
 ---
 
@@ -60,9 +62,11 @@ Then type:
 
 The skill takes it from there. The first thing it'll say is roughly:
 
-> *"Hi — I'm going to ask you 7 PM-style questions about what you want to build. There are no wrong answers. About 30 minutes from now you'll have a live URL you can share."*
+> *"Hi — before we start, let me make sure you know what you're in. You're running Claude Code, which is Anthropic's command-line version of Claude..."*
 
-Answer the questions in your own words. The skill writes a `spec.md` as you go. After question 7, it picks a template, shows you the bending plan, asks for your "go," builds, pushes, and walks you through enabling Pages. At the end you'll have a live URL and a `recap.md`.
+After that quick onboarding, the skill asks one question to fork your experience: *"do you have a specific build in mind, or would you rather I figure it out from a few questions about you?"* Pick "I have an idea" for the 7-question problem interview, or "Surprise me" for the 5-question get-to-know-you flow.
+
+Either way, the skill writes a `spec.md` as you go. After the interview, it picks (or pitches) the template, asks for your "go" (or has you pick from 3 personalized options if you chose "Surprise me"), builds, pushes, and walks you through enabling Pages. At the end you'll have a live URL and a `recap.md`.
 
 ---
 
@@ -71,7 +75,7 @@ Answer the questions in your own words. The skill writes a `spec.md` as you go. 
 After a build, your project folder will contain:
 
 - The template files (HTML / CSS / JS / JSON) that became your live site.
-- `spec.md` — the structured answers to the 7 interview questions. **Local only, gitignored by default** so you don't accidentally publish customer or employer names.
+- `spec.md` — your interview answers. **Local only, gitignored by default** so you don't accidentally publish customer or employer names. On the problem-shaped path this is the 7 answers + the picked template + bending; on the person-shaped path it's the 5 get-to-know-you answers + the option you picked + your build's name and footer name.
 - `recap.md` — the exit memo: what you built, the bending applied, what you just learned about GitHub, and what to try next. **Also local only, gitignored by default.**
 - A `.gitignore` that keeps those two files out of GitHub.
 
@@ -103,12 +107,13 @@ The `recap.md` includes a reflective question — *"did you text a friend within
 
 ## Roadmap
 
-V1 ships three templates (internal-tool, dashboard, prototype) and a single skill (`/first-build`). On the table for V2, depending on what shows up when real PMs run this:
+The current shipping version (V1.5) covers three templates (internal-tool, dashboard, prototype) and two paths (problem-shaped and person-shaped) through one skill (`/first-build`). On the table for V2, depending on what shows up when real PMs run this:
 
 - A sister `/next-build` skill that's intentionally less hand-holdy (validates whether the recap created standalone capability).
 - "Glass-box" mode that surfaces the skill's own prompts so PMs can fork and adapt them.
-- Survey and automation templates (V1 force-fits both into prototype today).
-- A classifier eval suite once we have ~10 real specs to train against.
+- Survey and automation templates (V1.5 force-fits both into prototype today).
+- A classifier eval suite once we have ~10 real specs to train against. Would cover both `template-picker.md` (Path A) and `person-picker.md` (Path B).
+- A possible "adaptive single interview" that hides the path gate from the PM and infers which interview to run from the first answer. Considered for V1.5 and deferred (see `docs/design-v1.5.md` Approach C).
 
 ---
 
