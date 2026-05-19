@@ -21,6 +21,16 @@
 - [x] **T1b** — `recap.md.tmpl` defines `<<config-swaps>>` and `<<codegen-notes>>` placeholders that aren't named in `SKILL.md`'s Min 27–30 step. **Fixed:** inlined full placeholder schema in SKILL.md as a reference table so the agent doesn't have to read both files to render correctly.
 - [x] **T1c** — `templates/dashboard/examples/` ships to the PM's deployed site (no harm — inert JSON, ~2KB) but the recap doesn't tell them what those folders are. **Fixed:** added a new `<<template-note>>` placeholder to recap.md.tmpl (rendered as a "First small change to try" callout right after the spec echo) with a per-template hint — for dashboard it points at `examples/`; for internal-tool it suggests adding a field; for prototype it suggests adding a page.
 
+## Dogfood round 1 fixes (2026-05-19, from builder's first /first-build run)
+
+All five landed in one commit ("dogfood-r1") — the new Min 0–10 flow is meaningfully different from the original T1 flow.
+
+- [x] **DF1** — Interview was too survey-like ("open ended and on the nose"). Fix: redesigned Min 2–7 as dialogic. Three rules now apply to every question — react in ≤12 words after each answer, read an inline example *with* the question, offer a multi-choice fallback if the answer is thin/hedged. Old standalone "short-answer follow-up" section folded into per-question fallback blocks.
+- [x] **DF2** — GitHub setup happened at Min 5–7, after the PM had already answered 7 questions. Fix: moved GitHub gate to Min 1–2 with a binary yes/no first, then signup walkthrough or username collection. Repo creation deferred to Min 7 once we have a kebab-case slug from the spec.
+- [x] **DF3a** — Skill didn't explain what Claude Code is vs Claude Desktop vs claude.ai, so PMs didn't know why this version can ship and the others can't. Fix: new dedicated Min 0–1 onboarding step with a verbatim utterance covering (a) what Claude Code is, (b) the file-edit / run-commands difference, (c) a 6-step roadmap of the next 30 min, (d) the "you can interrupt me anytime" affordance.
+- [x] **DF3b** — PMs had only one source of truth for the deployed URL (the string the skill printed). Fix: at Min 27, dual-source the URL — refresh-the-link AND check Settings → Pages where GitHub itself shows "Your site is live at..." with a green Visit-site button.
+- [x] **DF4** — Biggest one. Recap was `.gitignored` (privacy decision, locked), so the PM couldn't see it on GitHub and didn't know where to find it on disk — the whole "ready for next build" goal evaporated. Fix: recap is now delivered **inline in the chat as the primary handoff** (full rendered markdown, no abbreviation). File path + reopen command (`open recap.md` / `code recap.md`) given as backup. Privacy default unchanged — file still gitignored. New failure-mode row added: "PM finishes but says 'I don't see the recap' → you skipped step 1, print it inline now."
+
 ## V1 follow-up (next week)
 
 - [ ] **T13 (P2)** — Watch 3 DM'd PMs use `/first-build` without helping. Bite tongue. Record: did they finish? How long? Did they text a friend in 24h?
