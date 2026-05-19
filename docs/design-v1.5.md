@@ -15,9 +15,11 @@ The fix is a second path that meets that PM where they are. Not "tell me your pr
 
 ## What Makes This Cool
 
-The Path B aha is *not* "I picked a template and deployed it." That's the tutorial aha — small. The Path B aha is **"Claude read me right."** The 5-question get-to-know-you interview (role / daily tools / weekly annoyance / weekend project / hobby) gives Claude enough signal to pitch one specific template + named build that feels chosen *for* the PM, not at them. The live demo confirmation beat (*"Here's what yours will look like. Live preview: [URL]"*) closes the trust loop before commit. The 2-question micro-interview at the end (*"What should we call yours?"* + *"Whose name in the footer?"*) puts the PM's name on a working URL within ~22 minutes.
+The Path B aha is *not* "I picked a template and deployed it." That's the tutorial aha — small. The Path B aha is **"Claude read me right."** The 5-question get-to-know-you interview (role / daily tools / weekly annoyance / weekend project / hobby) gives Claude enough signal to generate **three personalized build options** and present them via a text-based picker. Each option is named, described in one sentence, and grounded in a specific signal from the PM's answers — so the picker itself is the read-them-right moment (each option's description quotes their words back). The 2-question micro-interview at the end (*"What should we call yours?"* + *"Whose name in the footer?"*) puts the PM's name on a working URL within ~22 minutes.
 
 The whole thing is the move from problem-shaped interrogation to person-shaped conversation. Same depth (5+2 = 7 beats, matching Path A's 7 questions), different angle. The 7 questions in Path A interview the PROBLEM; the 7 beats in Path B interview the PERSON.
+
+**No visual demos, no context switches.** Earlier drafts of this design (D1, D5) considered live-thumbnail pickers and inline-screenshot pickers; both were rejected in favor of a pure text-based picker. PM picks from text — same way they answer every other question in the skill. Consistent UX, zero operational tax (no demos to deploy, no PNGs to bundle, no URLs to keep alive), and the option descriptions themselves carry enough specificity to communicate the build without a visual.
 
 ## Constraints
 
@@ -31,8 +33,8 @@ All V1 load-bearing decisions stay locked (see parent `docs/design.md` § Load-b
 
 New constraints from V1.5:
 
-- The 3 live demos required for Path B's confirmation step need a persistent, free hosting target. Plan: deploy under `HT224.github.io/first-build/demos/<archetype>/` (sibling subdirectories of this repo, served by the same Pages instance).
-- V1.5 reschedules T11 (dogfood r3) and T12 (launch) by ~1-2 weeks. No tasks dropped.
+- ~~The 3 live demos required for Path B's confirmation step need a persistent, free hosting target.~~ **REMOVED** (D5/D6 revision, 2026-05-19): demos no longer exist. Path B uses a text-based 3-option picker generated from the PM's answers; no visuals or external URLs are involved. This drops T24 from the task list and removes an entire class of operational tax.
+- V1.5 reschedules T11 (dogfood r3) and T12 (launch) by ~1-2 weeks. No tasks dropped (though T24 is removed as scope-deleted per above).
 
 ## Premises (agreed during /office-hours)
 
@@ -40,20 +42,20 @@ New constraints from V1.5:
 2. Path B uses the existing 3 templates only — no new templates in V1.5.
 3. Path split happens at Min 1.5 — after onboarding (PM hears the Claude Code intro either way), before the GitHub gate.
 4. The 5-Q get-to-know-you interview *replaces* the 7-Q problem interview for Path B PMs. It is not additive.
-5. After the template pick, Claude shows the PM a live demo URL of the picked archetype before commit. *"Here's what yours will look like."*
-6. Override loop is bounded: 1 retry max. After 1 retry, Claude offers either "show me the menu" (fall through to a static 3-card picker, no inference) or "switch to Path A" (run the problem interview instead). No infinite loop.
+5. After the 5-Q interview, Claude generates 3 personalized build options and presents them via a text-based picker. Each option: a name, a one-sentence description of the build, and a one-line reason grounded in a specific signal from the PM's answers. The 3 options span the 3 archetypes (typically one internal-tool, one dashboard, one prototype) so the PM sees the breadth of what /first-build can do.
+6. Override is handled by `AskUserQuestion`'s built-in "Other" / free-form option — no separate override-loop logic needed. If the PM rejects all 3, they can describe what they actually want and Claude regenerates 3 new options, or routes them to Path A. No infinite loop because re-entry costs the PM a turn.
 7. Pre-deploy micro-interview is 2 questions: *"What should we call yours?"* + *"Whose name in the footer?"* These drive the personalization swaps.
 8. V1.5 reschedules launch by ~1-2 weeks. T11 dogfood + T12 launch slip; no tasks dropped.
 9. The aha hinges on Claude reading the PM right via the 5 get-to-know-you answers + the personalization beats. This is the riskiest premise (see Open Questions).
 
 ## Approaches Considered
 
-### Approach A: Two distinct paths with explicit gate at Min 1.5 (CHOSEN)
+### Approach A: Two distinct paths with explicit gate at Min 1.5 (CHOSEN, revised post-D5/D6)
 
-Exactly the design from /office-hours D1–D3. Path A unchanged from V1 (the 7-Q problem interview + force-fit classifier). Path B is its own walkthrough: 5-Q get-to-know-you → infer template → live demo confirm → optional override → 2-Q micro-interview → build + push + recap. The path gate is one question after onboarding: *"Got something in mind, or want me to suggest something based on you?"*
+Exactly the design from /office-hours D1–D4, revised in D5/D6 to drop the demo-hosting concept entirely. Path A unchanged from V1 (the 7-Q problem interview + force-fit classifier). Path B is its own walkthrough: 5-Q get-to-know-you → Claude generates 3 personalized text options → PM picks → 2-Q micro-interview → build + push + recap. The path gate is one question after onboarding: *"Got something in mind, or want me to suggest something based on you?"*
 
-- **Effort:** M (human: ~1-2 weeks / CC: ~6-10 hr)
-- **Risk:** Low–Med. The new surface area is the path gate UI, the person-shaped inference prompt (`person-picker.md`), the live demo confirmation beat, and the override loop. ~4 new code paths.
+- **Effort:** S–M (human: ~1 week / CC: ~4-6 hr)
+- **Risk:** Low. The new surface area is the path gate question, the person-shaped option generator (`person-picker.md`), the 3-option text-select picker, and the 2-Q micro-interview. ~3 new code paths. No demos to host, no PNGs to bundle.
 - **Reuses:** all 3 V1 templates as-is, recap.md.tmpl with one new `<<path>>` placeholder, the existing onboarding utterance (Min 0–1), the GitHub gate (Min 2), the build loop (Min 10–25), the push + Pages toggle (Min 25–27), and the inline recap (Min 27–30).
 
 ### Approach B: Minimal viable — 1 question + hardcoded fallback
@@ -90,9 +92,9 @@ Min 2–7   │ 7-Q problem interview   │ 5-Q get-to-know-you     │
           │ (unchanged)             │ (NEW)                   │
           │                         │                         │
 Min 7–10  │ template-picker.md      │ person-picker.md (NEW)  │
-          │ → force-fit + bend      │ → infer template + name │
-          │                         │ → live demo confirm     │
-          │                         │ → 1 override max        │
+          │ → force-fit + bend      │ → generate 3 options    │
+          │                         │ → text-select picker    │
+          │                         │ → (Other = regenerate)  │
           │                         │ → 2-Q micro-interview   │
           └──────────┬──────────────┴──────────┬──────────────┘
                      │                          │
@@ -122,29 +124,20 @@ Wait for the PM to pick. Accept variations ("surprise me," "I have one," "the se
 | 4 | If you had a free weekend with nothing on your plate, what would you build for fun? *Even a half-formed idea works.* | `weekend_project` |
 | 5 | Outside work, what do you geek out about? *Anything — climbing, jazz, learning Japanese, woodworking, video games.* | `hobby` |
 
-**The template inference (Min 7).** Claude runs `person-picker.md` (analogous to V1's `template-picker.md` but person-shaped) and produces:
+**The 3-option text-select picker (Min 7).** Claude runs `person-picker.md` (analogous to V1's `template-picker.md` but person-shaped) and generates three personalized options. Each option has:
 
 ```
+build_name: <short title, e.g., "Monday commitments tracker">
 template: <internal-tool | dashboard | prototype>
-build_name: <short kebab-case name derived from the spec, e.g., monday-commitments>
-pitch: <2-3 sentences explaining the build, grounded in specific answers the PM gave>
-demo_url: <https://HT224.github.io/first-build/demos/<archetype>/>
+description: <one sentence explaining what the build does>
+because: <one line grounded in a specific signal from the PM's answers>
 ```
 
-Then says verbatim:
+The 3 options typically span the 3 archetypes (one each from internal-tool, dashboard, prototype) so the PM sees the breadth of what /first-build can do, with each option tailored to their answers. Claude then says verbatim before opening the picker:
 
-> *"Based on what you told me — particularly [specific quote from their annoyance or weekend project] — I think the build for you is a **<build_name>**: <pitch>. Here's what yours will look like once it's deployed: <demo_url>. Open that in a tab. If it feels right, say 'go.' If not, say 'something else.'"*
+> *"Based on what you told me, here are three things I think could land. Each is genuinely different — pick the one that resonates, or say something else if none of them click."*
 
-**Override loop (Min 7–8).** If the PM says no:
-
-> *"OK — different angle. <Pitch a different template + different build name + different demo URL, grounded in a DIFFERENT signal from their 5 answers>. Sound closer?"*
-
-After one retry, if still no:
-
-> *"Two strikes — let me give you the wheel. I can either:*
-> *(a) show you the menu of 3 archetypes (internal-tool, dashboard, prototype) and you pick;*
-> *(b) switch to the problem-shaped interview — I'll ask you 7 questions about what you want to build.*
-> *Which one?"*
+Then opens an `AskUserQuestion` with 3 options. Each option's description includes the build name (bold), the one-sentence description, and the *because:* line in italics. The `AskUserQuestion` tool's built-in "Other" option handles the override case — if the PM types a free-form answer instead, Claude regenerates 3 new options from the PM's revised input, or routes to Path A if the new input is problem-shaped.
 
 **2-Q micro-interview (Min 8–10).** Once the PM says "go" on a template:
 
@@ -156,19 +149,20 @@ These answers drive: the deployed page title (config-swap in `copy.json` or equi
 
 ### Build details (what changes in SKILL.md, template-picker.md, recap.md.tmpl)
 
-- **New file: `person-picker.md`** — parallel to `template-picker.md`. Takes the 5 person-shaped answers and emits `template / build_name / pitch / demo_url`. Decision heuristics: "annoyance describes a recurring workflow" → internal-tool; "annoyance describes a metric or report" → dashboard; "weekend project sounds like a pitch or demo" → prototype. Hobby/tools provide aesthetic signal for the recap, not the pick.
-- **SKILL.md additions:** new `## Min 1–1.5 — Path gate` section, new `## Min 2–7 — Path B (person-shaped interview)` section parallel to Path A, new `## Min 7–8 — Template inference + live demo confirmation` section, new override-loop subsection.
+- **New file: `person-picker.md`** — parallel to `template-picker.md`. Takes the 5 person-shaped answers and emits 3 build options, each with `build_name / template / description / because`. Decision heuristics: "annoyance describes a recurring workflow" → at least one internal-tool option; "annoyance describes a metric or report" → at least one dashboard option; "weekend project sounds like a pitch or demo" → at least one prototype option. The 3 options should span the 3 archetypes when the PM's answers don't strongly favor one. Hobby/tools provide aesthetic signal for the recap, not the option-set itself.
+- **SKILL.md additions:** new `## Min 1–1.5 — Path gate` section, new `## Min 2–7 — Path B (person-shaped interview)` section parallel to Path A, new `## Min 7–8 — 3-option text-select picker` section, with the AskUserQuestion call sketched verbatim.
 - **`recap.md.tmpl`** gains one new placeholder `<<path>>` (values: "problem-shaped" or "person-shaped") and one new section for Path B recaps: a "Here's how I read you" callout that quotes their answers back ("you said you geek out about rock climbing — that's where the accent color came from") to make the reading-them-right beat durable.
-- **3 live demos at `HT224.github.io/first-build/demos/<archetype>/`** — one per archetype, kept stable. Probably built as a sibling Pages site or a /demos/ subdirectory committed to this repo. Each demo is one of the 3 templates filled with the *default* sample content (no PM customization), so it represents "the unflavored version of this archetype."
+- ~~3 live demos at `HT224.github.io/first-build/demos/<archetype>/`~~ — **REMOVED in D5/D6 revision.** No demos, no screenshots, no external visual artifacts. The 3-option text-select picker carries the trust beat via well-tailored prose alone.
 
 ## Open Questions
 
-1. **Where do the 3 live demos get hosted?** Two candidates: (a) a `/demos/` subdirectory of this repo, served by the same GitHub Pages instance at `HT224.github.io/first-build/demos/<archetype>/`; (b) a separate showcase repo. Option (a) is cleaner — one repo, one Pages instance, zero new operational surface. Need to confirm Pages serves subdirectories correctly (it should).
-2. **LLM inference determinism (Premise #9).** Given the same 5 answers, will Claude pick the same template every time? Probably 4/5 times. The `person-picker.md` prompt needs to be tight enough that high-variance picks are rare, OR we need an eval suite (deferred from V1 — see TODOS V2 backlog T16). Risk: PM A and PM B with similar answers see different picks, which is fine, but PM A re-running gets a different pick from yesterday, which feels broken.
-3. **The weekend-project question as Path A signal.** If a PM answers Q4 with *"I'd build a tool for my mom's bakery to track inventory,"* that's a real Path A spec. Do we (a) detect this and offer to switch to Path A mid-interview, or (b) silently route them down the Path B inference (which would probably land on internal-tool anyway)? Option (a) is the magical move; option (b) is simpler. Deferring this decision until first dogfood.
-4. **Person-shaped vs problem-shaped spec.md.** Path A's spec.md has fields `problem / persona / scenario / inputs / outputs / success / taste`. Path B's spec.md would have `role / tools / annoyance / weekend_project / hobby / template / build_name / pitch / footer_name`. Different schemas. The recap renderer needs to handle both. Cleanest: branch in recap.md.tmpl via the `<<path>>` placeholder.
+1. ~~Where do the 3 live demos get hosted?~~ **RESOLVED** by D5/D6 revision: no demos exist. Removed.
+2. **LLM determinism on option generation (Premise #9).** Given the same 5 answers, will Claude generate the same 3 options? Less critical than the original "same template every time" framing because PMs see 3 options and pick — small variance in the option-set doesn't break the experience. But significant variance might. The `person-picker.md` prompt needs to be tight enough that the 3 options always span at least 2 archetypes (so the picker actually offers a meaningful choice). Risk to watch in dogfood: PM regenerates and the same 3 options come back with different names, which would feel canned.
+3. **The weekend-project question as Path A signal.** If a PM answers Q4 with *"I'd build a tool for my mom's bakery to track inventory,"* that's a real Path A spec. Do we (a) detect this and offer to switch to Path A mid-interview, or (b) silently route the answer into one of the 3 Path B options? Option (a) is the magical move; option (b) is simpler and may actually be fine (the resulting Option 3 would just be "the thing they said," which they'll naturally pick). Deferring this decision until first dogfood.
+4. **Person-shaped vs problem-shaped spec.md.** Path A's spec.md has fields `problem / persona / scenario / inputs / outputs / success / taste`. Path B's spec.md would have `role / tools / annoyance / weekend_project / hobby / picked_build_name / picked_template / picked_because / footer_name`. Different schemas. The recap renderer needs to handle both. Cleanest: branch in recap.md.tmpl via the `<<path>>` placeholder.
 5. **The "got something in mind?" gate phrasing.** The current verbatim utterance treats the binary as equally weighted, but in practice we may want to *softly nudge* toward Path A for confident PMs (Path A's aha is bigger) and Path B for uncertain ones. How to detect "uncertain" from the PM's response to onboarding? Probably impossible in V1.5 — they haven't said anything yet. Defer to dogfood.
-6. **Does the live demo URL open in a new tab automatically?** The skill can't control the PM's browser. Print the URL and rely on the PM to cmd-click. If they don't, the confirmation beat is weaker. Possibly use `open <url>` via bash on macOS — but the skill is supposed to be cross-platform. Accept the manual cmd-click cost.
+6. ~~Does the live demo URL open in a new tab automatically?~~ **RESOLVED** by D5/D6 revision: no demo URLs. Removed.
+7. **What does "Other" route to?** If the PM picks "Other" in the 3-option text-select and types a free-form answer, two reasonable behaviors: (a) re-run `person-picker.md` with the new answer as additional context and present 3 fresh options; (b) detect whether their free-form answer is problem-shaped (mentions a specific build they want) and route to Path A. (b) is the smart move but requires intent detection. (a) is simpler — just regenerate. Start with (a) for V1.5; promote to (b) if dogfood shows free-form answers are typically problem-shaped.
 
 ## Success Criteria
 
@@ -182,22 +176,22 @@ These answers drive: the deployed page title (config-swap in `copy.json` or equi
 
 Unchanged from V1: install via `git clone <repo> && cd first-build && ./setup`. No CI/CD added in V1.5.
 
-**One new operational surface:** the 3 live demos at `HT224.github.io/first-build/demos/<archetype>/` need to stay deployed indefinitely. Cost: zero ($ — GitHub Pages is free). Build cost: one-time when T16 (deploy demos) lands. Maintenance cost: rebuild + push if a template changes meaningfully. Acceptable.
+~~**One new operational surface:** the 3 live demos at `HT224.github.io/first-build/demos/<archetype>/` need to stay deployed indefinitely.~~ **REMOVED** in D5/D6 revision. No new operational surface in V1.5 — distribution remains identical to V1.
 
 ## Next Steps (new tasks for `docs/tasks.jsonl`)
 
 Numbered to continue from V1's T1–T12 + V1-followup T13–T15 (per current TODOS.md). V1.5 tasks:
 
-- **T22 (P1)** — Write `person-picker.md` (parallel to `template-picker.md`). Person-shaped classifier prompt + decision heuristics + worked examples.
-- **T23 (P1)** — Restructure SKILL.md: add path gate (Min 1–1.5), Path B walkthrough (Min 2–7), template-inference + live-demo confirmation (Min 7–8), override loop, 2-Q micro-interview (Min 8–10). Path A walkthrough renamed but otherwise unchanged.
-- **T24 (P1)** — Deploy the 3 live demos to `HT224.github.io/first-build/demos/<archetype>/`. Confirm Pages serves subdirectories correctly.
+- **T22 (P1)** — Write `person-picker.md` (parallel to `template-picker.md`). Person-shaped option generator: takes 5 answers, emits 3 build options each with `build_name / template / description / because`. Heuristics: 3 options should span 2+ archetypes when answers are ambiguous; one option per archetype when answers are flat. Include 3-4 worked examples.
+- **T23 (P1)** — Restructure SKILL.md: add path gate (Min 1–1.5), Path B walkthrough (Min 2–7), 3-option text-select picker section (Min 7–8) with verbatim AskUserQuestion sketch, 2-Q micro-interview (Min 8–10). Path A walkthrough renamed but otherwise unchanged.
+- ~~**T24 (P1)** — Deploy the 3 live demos.~~ **REMOVED** in D5/D6 revision. No demos exist.
 - **T25 (P1)** — Update `recap.md.tmpl`: add `<<path>>` placeholder, add Path B "Here's how I read you" section that quotes the get-to-know-you answers, update the template-note logic to handle both spec.md schemas.
-- **T26 (P2)** — Update `README.md` to mention both paths and the gate.
+- **T26 (P2)** — Update `README.md` to mention both paths and the gate. Frame Path B as "different way in for the curious," not "shortcut for the indecisive."
 - **T27 (P2)** — Update `docs/design.md` to reference `docs/design-v1.5.md` as the V1.5 addition (so a fresh-session re-read sees both).
 - **T28 (P1)** — Dogfood r3: builder runs each path end-to-end at least once. Time both. Watch where friction shows up. Fix top 2 issues.
 - **T29 (P2)** — Push V1 launch (T12) to after T28 succeeds. Update launch announcement to mention both paths.
 
-Effort estimate: ~6-10 CC hours total (rough). Calendar: 1-2 weeks of part-time work.
+Effort estimate: ~4-6 CC hours total (revised down from 6-10 after T24 removal). Calendar: ~1 week of part-time work.
 
 ## What I noticed about how you think
 
