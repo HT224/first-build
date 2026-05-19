@@ -73,6 +73,17 @@ Ask these in order, one at a time. After each answer, write the answer into `spe
 
 `spec.md` is `.gitignored` by every template — it stays local. Do not push it. The recap explains how to opt-in to publishing.
 
+### Handling short or one-word answers
+
+PMs in interview mode sometimes type one word ("dashboards"), a fragment ("for my VP"), or "idk." Run **one** follow-up, then move on no matter what.
+
+- **Trigger:** the answer is fewer than ~5 words, or is a hedge like "idk," "not sure," "anything," "whatever."
+- **The follow-up (use this verbatim or close to it):** *"Got it. Can you say a bit more about that? Even one extra sentence helps the classifier pick the right template."*
+- **Wait for one response, then proceed.** Accept whatever they say — even if it's still short. Write the longer of the two answers into `spec.md`. Do not ask a third time.
+- **Why one max:** more than one follow-up turns the interview into an interrogation and burns the 30-min budget. The classifier is robust to thin specs — it force-fits.
+
+Do not follow up on every question — only on the genuinely thin ones. If the PM is rolling, get out of their way.
+
 ---
 
 ## Min 5–7 — GitHub precheck
@@ -178,6 +189,7 @@ Say: *"Still propagating — first deploys on a new account sometimes take longe
 | Pages toggle confusion | Re-read the 7-step list above, slower |
 | Pages 404 after 5+ min | Keep refreshing; after 10+ min suspect org-disabled Pages |
 | PM gets distracted mid-interview | Pick up where you left off, do not restart questions |
+| PM gives a one-word answer | Ask one short follow-up, accept the second answer regardless |
 | `git push` fails | Surface the real error, fix it, do not silently retry |
 
 ---
