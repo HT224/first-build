@@ -16,3 +16,4 @@ node_modules/
 # Build output (none in V1, but defensive)
 dist/
 build/
+.gstack/

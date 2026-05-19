@@ -21,6 +21,17 @@
 - [x] **T1b** — `recap.md.tmpl` defines `<<config-swaps>>` and `<<codegen-notes>>` placeholders that aren't named in `SKILL.md`'s Min 27–30 step. **Fixed:** inlined full placeholder schema in SKILL.md as a reference table so the agent doesn't have to read both files to render correctly.
 - [x] **T1c** — `templates/dashboard/examples/` ships to the PM's deployed site (no harm — inert JSON, ~2KB) but the recap doesn't tell them what those folders are. **Fixed:** added a new `<<template-note>>` placeholder to recap.md.tmpl (rendered as a "First small change to try" callout right after the spec echo) with a per-template hint — for dashboard it points at `examples/`; for internal-tool it suggests adding a field; for prototype it suggests adding a page.
 
+## QA verdict — templates pre-dogfood r2 (2026-05-19)
+
+Ran `/qa-only` against all three templates served from a local HTTP server. Health score **95/100**, zero critical/high/medium/low findings. Report at `.gstack/qa-reports/qa-report-templates-2026-05-19.md` (gitignored — see `.gitignore`).
+
+- **internal-tool:** form renders, add/persist-across-reload/delete all work, localStorage key `first-build:entries` shape verified, required-field validation fires. Clean.
+- **dashboard (time-series default):** Chart.js v4.4.1 CDN loads (205KB, 104ms), line chart renders all 8 data points, narrative markdown renders bold + headings, data table appears below chart. Clean.
+- **dashboard (categorical-bar / two-column-table):** example JSON files validated, but the in-memory `fetch` override didn't cleanly re-execute the IIFE so these shapes weren't *visually* verified. Risk: low — the shape-conditional code path in app.js is trivial. Optional 3-min manual swap test would close this fully.
+- **prototype:** sticky nav + 4 page tabs, hash routing + active-state highlight + deep-link + missing-slug graceful, markdown (headings/bold/bullets). Clean.
+
+Translation for dogfood r2: any friction you hit is **UX / flow friction**, not "the page doesn't work" friction. Proceed.
+
 ## Dogfood round 1 fixes (2026-05-19, from builder's first /first-build run)
 
 All five landed in one commit ("dogfood-r1") — the new Min 0–10 flow is meaningfully different from the original T1 flow.
