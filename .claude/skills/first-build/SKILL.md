@@ -159,6 +159,19 @@ Print this as a numbered list in the chat:
 
 After listing the 7 steps, say: *"Tell me when you see the yellow notice."* Wait.
 
+### Gotchas at this step (be ready to answer these without re-listing)
+
+PMs lose the most time on this step. When the PM says something off-script, decode it:
+
+- *"There's no Pages option in the sidebar."* → They're in the wrong repo, or the page didn't finish loading. Have them open the repo URL fresh and scroll the sidebar — "Pages" is near the bottom, under the "Code and automation" group.
+- *"I see GitHub Actions as the Source option."* → That's the wrong choice. Switch back to **Deploy from a branch**. Actions-based Pages requires a workflow file the template doesn't ship.
+- *"My only branch option is something other than `main`."* → They cloned but never pushed, so the remote has no branches yet. Go back, run `git push -u origin main`, then refresh the Pages page.
+- *"I clicked Save but I don't see the yellow notice."* → Have them hard-refresh (Cmd/Ctrl + Shift + R). The notice appears under the Source dropdowns.
+- *"There's a green checkmark, not a yellow notice."* → Even better — it means Pages has already deployed. Skip ahead to the URL handoff.
+- *"It says my visibility needs to be public."* → They created a private repo on a Free plan (Free doesn't allow Pages on private repos). Have them go to Settings → General → Danger Zone → Change visibility → Public.
+
+Do not re-read the 7 steps when one of these happens. Diagnose the specific gotcha and give the one-line fix.
+
 ---
 
 ## Min 27–30 — URL handoff (manual paste-back)
