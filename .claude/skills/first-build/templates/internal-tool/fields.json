@@ -1,0 +1,19 @@
+[
+  {
+    "name": "title",
+    "label": "Title",
+    "type": "text",
+    "required": true
+  },
+  {
+    "name": "status",
+    "label": "Status",
+    "type": "select",
+    "options": ["todo", "doing", "done"]
+  },
+  {
+    "name": "notes",
+    "label": "Notes",
+    "type": "textarea"
+  }
+]

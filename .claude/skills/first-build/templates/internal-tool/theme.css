@@ -1,0 +1,4 @@
+/* The single bending surface for theming. Swap this hex for any color you like. */
+:root {
+  --accent: #2563eb;
+}

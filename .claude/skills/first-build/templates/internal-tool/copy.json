@@ -1,0 +1,8 @@
+{
+  "title": "My tracker",
+  "tagline": "Things I'm keeping track of.",
+  "addButton": "Add",
+  "deleteButton": "Delete",
+  "deleteConfirm": "Delete this entry?",
+  "emptyState": "Nothing here yet. Add your first entry above."
+}
