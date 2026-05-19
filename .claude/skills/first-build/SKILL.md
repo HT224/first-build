@@ -182,6 +182,27 @@ Once the PM confirms the yellow notice, print:
 
 While the PM waits, write `recap.md` (use `recap.md.tmpl` from this skill directory; the recap is also `.gitignored`). Do **not** poll the URL with curl. Do **not** auto-detect. The manual paste-back is intentional — it teaches the PM what deploy latency feels like and keeps the budget honest.
 
+### `recap.md.tmpl` placeholders to substitute
+
+The template file's HTML comment is authoritative, but for quick reference the substitutions you need to make:
+
+| Placeholder | Source |
+|---|---|
+| `<<live-url>>` | `https://<user>.github.io/<repo>/` |
+| `<<repo-url>>` | `https://github.com/<user>/<repo>` |
+| `<<template>>` | `internal-tool` / `dashboard` / `prototype` |
+| `<<bending>>` | the 1–3 sentence bending text the classifier produced |
+| `<<problem>>` … `<<taste>>` | the seven `spec.md` answers verbatim |
+| `<<config-swaps>>` | a bulleted list of the swaps you actually made (e.g. `- fields.json: {engineer, commitment, status}`); one swap per line, `-` bullet, two-space indent |
+| `<<codegen-notes>>` | if any codegen was needed beyond config-swap, one sentence; otherwise the literal string `None — everything was config-swap.` |
+| `<<template-note>>` | a one-sentence "first small change" hint specific to the chosen template — see below |
+
+**`<<template-note>>` per template:**
+
+- **internal-tool:** *"Try adding a new field — open `fields.json` and add an entry like `{ "name": "due_date", "label": "Due", "type": "date" }`, then commit and push. Your form gets a new field; your existing entries keep their old fields."*
+- **dashboard:** *"Your repo includes `examples/` with two other pre-baked shapes (`categorical-bar`, `two-column-table`). To swap shapes, copy both files from a different `examples/<shape>/` folder into the repo root, edit the values, commit, push."*
+- **prototype:** *"Add a fifth page — append `{ "slug": "team", "label": "Team" }` to `pages.json`, then create `copy/team.md` with whatever content you want, commit, push. The new page shows up in the nav."*
+
 When the PM pastes "live" (or "it works" / "loaded" / equivalent):
 
 > *"That's it — you just shipped. Open recap.md in your editor. It captures everything we did: the spec, the template choice, the bending, what you learned about git and Pages. The recap is yours to keep — it's `.gitignored` so it doesn't publish to GitHub. Read it on the train home. Your next build doesn't need me."*
